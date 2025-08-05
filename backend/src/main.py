@@ -1,11 +1,9 @@
+import asyncio
+from reboot.aio.applications import Application
 from channel_servicer import ChannelServicer
 from user_servicer import UserServicer
 from message_servicer import MessageServicer
-from reboot.std.collections.sorted_map import sorted_map
-
-
-async def initialize(context: ExternalContext):
-    pass
+from reboot.std.collections import sorted_map
 
 
 async def main():
@@ -15,7 +13,6 @@ async def main():
             UserServicer,
             MessageServicer,
         ] + sorted_map.servicers(),
-        initialize=initialize,
     ).run()
 
 
