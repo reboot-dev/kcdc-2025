@@ -1,8 +1,8 @@
 import google.protobuf.any_pb2
 from dataclasses import dataclass
-from resemble.aio.contexts import TransactionContext, WorkflowContext
-from resemble.aio.types import StateId
-from resemble.aio.workflows import Workflow
+from rebootdev.aio.contexts import TransactionContext, WorkflowContext
+from rebootdev.aio.types import StateId
+from rebootdev.aio.workflows import Workflow
 from list.v1 import list_rsm
 from typing import Generic, TypeVar
 

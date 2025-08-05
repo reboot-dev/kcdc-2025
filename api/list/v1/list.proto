@@ -3,27 +3,25 @@ syntax = "proto3";
 package list.v1;
 
 import "google/protobuf/any.proto";
-import "resemble/v1alpha1/options.proto";
+import "rbt/v1alpha1/options.proto";
 
 ////////////////////////////////////////////////////////////////////////
 
-service List {
-  option (resemble.v1alpha1.service).state = "ListState";
-
+service ListMethods {
   rpc Append(AppendRequest) returns (AppendResponse) {
-    option (resemble.v1alpha1.method) = {
+    option (rbt.v1alpha1.method) = {
       writer: {},
     };
   }
 
   rpc Remove(RemoveRequest) returns (RemoveResponse) {
-    option (resemble.v1alpha1.method) = {
+    option (rbt.v1alpha1.method) = {
       writer: {},
     };
   }
 
   rpc GetPage(GetPageRequest) returns (GetPageResponse) {
-    option (resemble.v1alpha1.method) = {
+    option (rbt.v1alpha1.method) = {
       reader: {},
     };
   }
@@ -54,7 +52,9 @@ message Item {
 
 ////////////////////////////////////////////////////////////////////////
 
-message ListState {
+message List {
+  option (rbt.v1alpha1.state) = {
+  };
   repeated Item items = 1;
 }
 

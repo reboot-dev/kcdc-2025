@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package chat.v1;
 
-import "resemble/v1alpha1/options.proto";
+import "rbt/v1alpha1/options.proto";
 
 ////////////////////////////////////////////////////////////////////////
 
