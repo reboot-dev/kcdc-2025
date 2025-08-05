@@ -1,3 +1,4 @@
+import asyncio
 from chat.v1.channel_rbt import (
     Channel,
     PostRequest,
@@ -5,14 +6,19 @@ from chat.v1.channel_rbt import (
     MessagesRequest,
     MessagesResponse,
 )
+from chat.v1.message_rbt import Message
 from reboot.aio.contexts import (
     ReaderContext,
     TransactionContext,
     WriterContext,
 )
+from rbt_collections import List
+from reboot.aio.auth.authorizers import allow
 
 
 class ChannelServicer(Channel.alpha.Servicer):
+    def authorizer(self):
+        return allow()
 
     async def Post(
         self,
@@ -23,14 +29,16 @@ class ChannelServicer(Channel.alpha.Servicer):
 
         self.state.messages += 1
 
-        Message.ref(message_id).Edit(
+        await Message.ref(message_id).Edit(
             context,
             author=request.author,
             text=request.text,
         )
 
-        SortedMap.ref(f'{context.state_id}-messages').Insert(
-            context, entries={str(message_id): context.state_id.encode()})
+        await List(str).ref(f'{context.state_id}-messages').Append(
+            context,
+            item=message_id,
+        ),
 
         return PostResponse(message_id=message_id)
 
@@ -39,14 +47,18 @@ class ChannelServicer(Channel.alpha.Servicer):
         context: ReaderContext,
         request: MessagesRequest,
     ) -> MessagesResponse:
-        message_ids_map = await SortedMap.ref(f'{context.state_id}-messages')
+        page = await List(str).ref(f'{context.state_id}-messages').GetPage(
+            context,
+            page=request.page or -1,
+            items_per_page=request.items_per_page or 20,
+        )
 
-        message_ids = await message_ids_map.Range(context, limit=32)
-
-        responses = await asyncio.gather(*[
-            Message.ref(message_id).GetDetails(context)
-            for message_id in message_ids
-        ])
+        responses = await asyncio.gather(
+            *[
+                Message.ref(item).GetDetails(context)
+                for item in page.items
+            ]
+        )
 
         return MessagesResponse(
             details=[response.details for response in responses])

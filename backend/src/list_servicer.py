@@ -4,14 +4,15 @@ from list.v1.list_rbt import (
     GetPageRequest,
     GetPageResponse,
     List,
-    ListState,
     RemoveResponse,
     RemoveRequest,
 )
 from rebootdev.aio.contexts import ReaderContext, WriterContext
-
+from reboot.aio.auth.authorizers import allow
 
 class ListServicer(List.alpha.Servicer):
+    def authorizer(self):
+        return allow()
 
     async def Append(
         self,

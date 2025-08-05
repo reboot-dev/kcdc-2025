@@ -6,9 +6,12 @@ from chat.v1.user_rbt import (
     GetMessagesReactionsResponse,
 )
 from rebootdev.aio.contexts import WriterContext, ReaderContext
+from reboot.aio.auth.authorizers import allow
 
 
 class UserServicer(User.alpha.Servicer):
+    def authorizer(self):
+        return allow()
 
     async def Create(
         self,
@@ -24,10 +27,14 @@ class UserServicer(User.alpha.Servicer):
     ):
         reactions: list[MessageReaction] = []
 
-        message_reactions_map = await SortedMap.ref(
-            f'{context.state_id}-message-reactions')
+        user_reactions_list = List(MessageReaction).ref(
+            f'{context.state_id}-message-reactions'
+        )
 
-        message_reactions = await message_reactions_map.Range(
-            context, limit=request.page * request.items_per_page)
+        page = await user_reactions_list.GetPage(
+            context,
+            page=request.page,
+            items_per_page=request.items_per_page,
+        )
 
-        return GetMessagesReactionsResponse(reactions=message_reactions)
+        return GetMessagesReactionsResponse(reactions=page.items)

@@ -3,7 +3,7 @@ from reboot.aio.applications import Application
 from channel_servicer import ChannelServicer
 from user_servicer import UserServicer
 from message_servicer import MessageServicer
-from reboot.std.collections import sorted_map
+from list_servicer import ListServicer
 
 
 async def main():
@@ -12,7 +12,8 @@ async def main():
             ChannelServicer,
             UserServicer,
             MessageServicer,
-        ] + sorted_map.servicers(),
+            ListServicer,
+        ]
     ).run()
 
 

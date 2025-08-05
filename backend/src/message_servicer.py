@@ -12,6 +12,7 @@ from chat.v1.message_rbt import (
     AppendReactionToUsersMessageReactionsResponse,
     GetReactionsRequest,
     GetReactionsResponse,
+    Details,
 )
 from rbt_collections import List
 from rebootdev.aio.contexts import (
@@ -20,9 +21,12 @@ from rebootdev.aio.contexts import (
     TransactionContext,
     WorkflowContext,
 )
+from reboot.aio.auth.authorizers import allow
 
 
 class MessageServicer(Message.alpha.Servicer):
+    def authorizer(self):
+        return allow()
 
     async def Edit(
         self,
@@ -73,7 +77,7 @@ class MessageServicer(Message.alpha.Servicer):
             await user_message_reactions.Append(
                 context,
                 item=MessageReaction(
-                    message_id=context.actor_id,
+                    message_id=context.state_id,
                     unicode=request.unicode,
                     author=request.author,
                     snippet=snippet,
@@ -102,7 +106,7 @@ class MessageServicer(Message.alpha.Servicer):
             await user_message_reactions.Remove(
                 context,
                 item=MessageReaction(
-                    message_id=context.actor_id,
+                    message_id=context.state_id,
                     unicode=request.unicode,
                     author=request.author,
                 ),
@@ -129,7 +133,7 @@ class MessageServicer(Message.alpha.Servicer):
             context,
             Options(idempotency_alias='user message reactions append'),
             item=MessageReaction(
-                message_id=context.actor_id,
+                message_id=context.state_id,
                 unicode=request.unicode,
                 author=request.author,
             ),
