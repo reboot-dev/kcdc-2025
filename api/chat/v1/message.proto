@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package chat.v1;
+
+import "resemble/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+service MessageMethods {
+  rpc Edit(EditRequest) returns (EditResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
+    };
+  }
+
+  rpc GetDetails(GetDetailsRequest) returns (GetDetailsResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+
+  rpc AddReaction(AddReactionRequest) returns (AddReactionResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {},
+    };
+  }
+
+  rpc RemoveReaction(RemoveReactionRequest) returns (RemoveReactionResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {},
+    };
+  }
+
+  rpc GetReactions(GetReactionsRequest) returns (GetReactionsResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+
+  rpc AppendReactionToUsersMessageReactions(
+      AppendReactionToUsersMessageReactionsRequest)
+      returns (AppendReactionToUsersMessageReactionsResponse) {
+    option (rbt.v1alpha1.method) = {
+      workflow: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Message {
+  option (rbt.v1alpha1.state) = {
+  };
+  string author = 1;
+  string text = 2;
+  map<string, Authors> reactions = 3;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Authors {
+  repeated string ids = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Details {
+  string id = 4;
+  string author = 1;
+  string text = 2;
+  map<string, Authors> reactions = 3;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message MessageReaction {
+  string message_id = 1;
+  string unicode = 2;
+  string author = 3;
+  string snippet = 4;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message EditRequest {
+  string author = 1;
+  string text = 2;
+}
+
+message EditResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message GetDetailsRequest {}
+
+message GetDetailsResponse {
+  Details details = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message AddReactionRequest {
+  string unicode = 1;
+  string author = 2;
+}
+
+message AddReactionResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message RemoveReactionRequest {
+  string unicode = 1;
+  string author = 2;
+}
+
+message RemoveReactionResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message GetReactionsRequest {}
+
+message GetReactionsResponse {
+  map<string, Authors> reactions = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message AppendReactionToUsersMessageReactionsRequest {
+  string user = 1;
+  string unicode = 2;
+  string author = 3;
+}
+
+message AppendReactionToUsersMessageReactionsResponse {}
+
+////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package chat.v1;
+
+import "chat/v1/message.proto";
+import "resemble/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+service User {
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
+    };
+  }
+
+  rpc GetMessagesReactions(GetMessagesReactionsRequest)
+      returns (GetMessagesReactionsResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message User {
+  option (rbt.v1alpha1.state) = {
+  };
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message CreateRequest {}
+message CreateResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message GetMessagesReactionsRequest {
+  int32 page = 1;
+  uint32 items_per_page = 2;
+}
+
+message GetMessagesReactionsResponse {
+  repeated MessageReaction reactions = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
