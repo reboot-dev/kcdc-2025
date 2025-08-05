@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package chat.v1;
+
+import "chat/v1/message.proto";
+import "resemble/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+service ChannelMethods {
+  rpc Post(PostRequest) returns (PostResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {},
+    };
+  }
+
+  rpc Messages(MessagesRequest) returns (MessagesResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Channel {
+  option (rbt.v1alpha1.state) = {
+  };
+  uint64 messages = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message PostRequest {
+  string author = 1;
+  string text = 2;
+}
+
+message PostResponse {
+  string message_id = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message MessagesRequest {
+  int32 page = 1;
+  uint32 items_per_page = 2;
+}
+
+message MessagesResponse {
+  repeated Details details = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
