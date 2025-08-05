@@ -8,9 +8,19 @@ from chat.v1.message_rbt import (
     AddReactionResponse,
     RemoveReactionRequest,
     RemoveReactionResponse,
+    AppendReactionToUsersMessageReactionsRequest,
+    AppendReactionToUsersMessageReactionsResponse,
+    GetReactionsRequest,
+    GetReactionsResponse,
 )
 from rbt_collections import List
-from rebootdev.aio.contexts import WriterContext, ReaderContext, TransactionContext, WorkflowContext
+from rebootdev.aio.contexts import (
+    WriterContext,
+    ReaderContext,
+    TransactionContext,
+    WorkflowContext,
+)
+
 
 class MessageServicer(Message.alpha.Servicer):
 
@@ -102,9 +112,7 @@ class MessageServicer(Message.alpha.Servicer):
         if len(self.state.reactions[request.unicode].ids) == 0:
             del self.state.reactions[request.unicode]
 
-
         remove_from_user_message_reactions()
-
 
         return RemoveReactionResponse()
 
@@ -134,4 +142,4 @@ class MessageServicer(Message.alpha.Servicer):
         context: ReaderContext,
         request: GetReactionsRequest,
     ):
-        return GetReactionsResponse(reactions= self.state.reactions)
+        return GetReactionsResponse(reactions=self.state.reactions)

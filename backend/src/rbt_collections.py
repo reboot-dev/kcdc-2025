@@ -17,7 +17,6 @@ class Page(Generic[U]):
 
 class List(Generic[T]):
 
-
     class WeakReference(Generic[U]):
 
         def __init__(self, id: StateId, u: type[U]):
@@ -29,7 +28,7 @@ class List(Generic[T]):
             context_or_workflow: TransactionContext | WorkflowContext,
             *,
             item: U,
-        ):        
+        ):
             return await self._weak_reference.Append(
                 context_or_workflow,
                 item=self._wrap(item),
@@ -37,7 +36,7 @@ class List(Generic[T]):
 
         async def Remove(
             self,
-            context_or_workflow: TransactionContext | WorkflowContext ,
+            context_or_workflow: TransactionContext | WorkflowContext,
             *,
             item: U,
         ):
@@ -59,9 +58,7 @@ class List(Generic[T]):
                 items_per_page=items_per_page,
             )
 
-            return Page(
-                items=[self._unwrap(item) for item in page.items],
-            )
+            return Page(items=[self._unwrap(item) for item in page.items], )
 
         def _wrap(self, item: U):
             assert self._u == type(item)

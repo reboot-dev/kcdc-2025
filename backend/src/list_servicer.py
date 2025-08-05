@@ -29,11 +29,9 @@ class ListServicer(List.alpha.Servicer):
         serialized_item = request.item.SerializeToString(deterministic=True)
 
         for i in range(len(self.state.items)):
-            if (
-                self.state.items[i].SerializeToString(deterministic=True) ==
-                serialized_item
-            ):
-                items = self.state.items[:i] + self.state.items[i+1:]
+            if (self.state.items[i].SerializeToString(
+                    deterministic=True) == serialized_item):
+                items = self.state.items[:i] + self.state.items[i + 1:]
                 del self.state.items[:]
                 self.state.items.extend(items)
                 break
@@ -59,7 +57,6 @@ class ListServicer(List.alpha.Servicer):
             begin = max(end - items_per_page, 0)
 
         return (begin, end)
-
 
     async def GetPage(
         self,
