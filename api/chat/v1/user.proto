@@ -3,11 +3,11 @@ syntax = "proto3";
 package chat.v1;
 
 import "chat/v1/message.proto";
-import "resemble/v1alpha1/options.proto";
+import "rbt/v1alpha1/options.proto";
 
 ////////////////////////////////////////////////////////////////////////
 
-service User {
+service UserMethods {
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (rbt.v1alpha1.method) = {
       writer: {},

@@ -1,7 +1,7 @@
 from channel_servicer import ChannelServicer
 from user_servicer import UserServicer
 from message_servicer import MessageServicer
-from reboot.std.collections import sorted_map
+from reboot.std.collections.sorted_map import sorted_map
 
 
 async def initialize(context: ExternalContext):

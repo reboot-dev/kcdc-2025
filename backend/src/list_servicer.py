@@ -8,7 +8,7 @@ from list.v1.list_rsm import (
     RemoveResponse,
     RemoveRequest,
 )
-from resemble.aio.contexts import ReaderContext, WriterContext
+from rebootdev.aio.contexts import ReaderContext, WriterContext
 
 
 class ListServicer(List.Alpha.Servicer):

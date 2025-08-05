@@ -1,4 +1,4 @@
-from chat.v1.message_rbt import (
+from api.chat.v1.message_rbt import (
     Message,
     EditRequest,
     EditResponse,
