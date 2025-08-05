@@ -9,9 +9,9 @@ from chat.v1.message_rbt import (
     RemoveReactionRequest,
     RemoveReactionResponse,
 )
+from collections import List
 
-
-class MessageServicer(Message.Servicer):
+class MessageServicer(Message.Alpha.Servicer):
 
     async def Edit(
         self,
@@ -51,7 +51,7 @@ class MessageServicer(Message.Servicer):
             return AddReactionResponse()
 
         async def append_to_user_message_reactions():
-            user_message_reactions = List(MessageReaction).lookup(
+            user_message_reactions = List(MessageReaction).ref(
                 f'{self.state.author}-message-reactions')
 
             snippet = ' '.join(self.state.text.split()[:3])
@@ -85,7 +85,7 @@ class MessageServicer(Message.Servicer):
             return RemoveReactionResponse()
 
         async def remove_from_user_message_reactions():
-            user_message_reactions = List(MessageReaction).lookup(
+            user_message_reactions = List(MessageReaction).ref(
                 f'{self.state.author}-message-reactions')
 
             await user_message_reactions.Remove(
@@ -113,7 +113,7 @@ class MessageServicer(Message.Servicer):
         request: AppendReactionToUsersMessageReactionsRequest,
     ):
 
-        user_message_reactions = List(MessageReaction).lookup(
+        user_message_reactions = List(MessageReaction).ref(
             f'{request.user}-message-reactions')
 
         await user_message_reactions.Append(
