@@ -1,4 +1,4 @@
-from list.v1.list_rsm import (
+from list.v1.list_rbt import (
     AppendRequest,
     AppendResponse,
     GetPageRequest,
@@ -11,7 +11,7 @@ from list.v1.list_rsm import (
 from rebootdev.aio.contexts import ReaderContext, WriterContext
 
 
-class ListServicer(List.Alpha.Servicer):
+class ListServicer(List.alpha.Servicer):
 
     async def Append(
         self,

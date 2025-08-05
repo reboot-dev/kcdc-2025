@@ -1,4 +1,4 @@
-from api.chat.v1.message_rbt import (
+from chat.v1.message_rbt import (
     Message,
     EditRequest,
     EditResponse,
@@ -9,9 +9,10 @@ from api.chat.v1.message_rbt import (
     RemoveReactionRequest,
     RemoveReactionResponse,
 )
-from collections import List
+from rbt_collections import List
+from rebootdev.aio.contexts import WriterContext, ReaderContext, TransactionContext, WorkflowContext
 
-class MessageServicer(Message.Alpha.Servicer):
+class MessageServicer(Message.alpha.Servicer):
 
     async def Edit(
         self,

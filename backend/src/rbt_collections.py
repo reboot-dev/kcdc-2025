@@ -2,8 +2,7 @@ import google.protobuf.any_pb2
 from dataclasses import dataclass
 from rebootdev.aio.contexts import TransactionContext, WorkflowContext
 from rebootdev.aio.types import StateId
-from rebootdev.aio.workflows import Workflow
-from list.v1 import list_rsm
+from list.v1 import list_rbt
 from typing import Generic, TypeVar
 
 T = TypeVar('T')
@@ -22,12 +21,12 @@ class List(Generic[T]):
     class WeakReference(Generic[U]):
 
         def __init__(self, id: StateId, u: type[U]):
-            self._weak_reference = list_rsm.List.ref(id)
+            self._weak_reference = list_rbt.List.ref(id)
             self._u = u
 
         async def Append(
             self,
-            context_or_workflow: TransactionContext | WorkflowContext | Workflow,
+            context_or_workflow: TransactionContext | WorkflowContext,
             *,
             item: U,
         ):        
@@ -38,7 +37,7 @@ class List(Generic[T]):
 
         async def Remove(
             self,
-            context_or_workflow: TransactionContext | WorkflowContext | Workflow,
+            context_or_workflow: TransactionContext | WorkflowContext ,
             *,
             item: U,
         ):
@@ -49,7 +48,7 @@ class List(Generic[T]):
 
         async def GetPage(
             self,
-            context_or_workflow: TransactionContext | WorkflowContext | Workflow,
+            context_or_workflow: TransactionContext | WorkflowContext,
             *,
             page: int,
             items_per_page: int,
@@ -67,21 +66,21 @@ class List(Generic[T]):
         def _wrap(self, item: U):
             assert self._u == type(item)
             if self._u == float:
-                return list_rsm.Item(as_double=item)
+                return list_rbt.Item(as_double=item)
             elif self._u == int:
-                return list_rsm.Item(as_int64=item)
+                return list_rbt.Item(as_int64=item)
             elif self._u == bool:
-                return list_rsm.Item(as_bool=item)
+                return list_rbt.Item(as_bool=item)
             elif self._u == str:
-                return list_rsm.Item(as_string=item)
+                return list_rbt.Item(as_string=item)
             elif self._u == bytes:
-                return list_rsm.Item(as_bytes=item)
+                return list_rbt.Item(as_bytes=item)
             else:
                 any = google.protobuf.any_pb2.Any()
                 any.Pack(item)
-                return list_rsm.Item(as_any=any)
+                return list_rbt.Item(as_any=any)
 
-        def _unwrap(self, item: list_rsm.Item):
+        def _unwrap(self, item: list_rbt.Item):
             if self._u == float:
                 return item.as_double
             elif self._u == int:
