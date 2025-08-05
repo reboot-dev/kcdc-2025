@@ -2,8 +2,8 @@ from chat.v1.channel_rbt import (
     Channel,
     PostRequest,
     PostResponse,
-    MessageRequest,
-    MessageResponse,
+    MessagesRequest,
+    MessagesResponse,
 )
 from reboot.aio.contexts import (
     ReaderContext,
@@ -12,7 +12,7 @@ from reboot.aio.contexts import (
 )
 
 
-class ChannelServicer(Channel.Alpha.Servicer):
+class ChannelServicer(Channel.alpha.Servicer):
 
     async def Post(
         self,
@@ -38,7 +38,7 @@ class ChannelServicer(Channel.Alpha.Servicer):
         self,
         context: ReaderContext,
         request: MessagesRequest,
-    ) -> MessageResponse:
+    ) -> MessagesResponse:
         message_ids_map = await SortedMap.ref(f'{context.state_id}-messages')
 
         message_ids = await message_ids_map.Range(context, limit=32)
