@@ -1,20 +1,19 @@
 import asyncio
 from reboot.aio.applications import Application
 from channel_servicer import ChannelServicer
-from user_servicer import UserServicer
+from user_servicer import UserServicer, UsersServicer
 from message_servicer import MessageServicer
 from list_servicer import ListServicer
 
 
 async def main():
-    await Application(
-        servicers=[
-            ChannelServicer,
-            UserServicer,
-            MessageServicer,
-            ListServicer,
-        ]
-    ).run()
+    await Application(servicers=[
+        ChannelServicer,
+        UserServicer,
+        MessageServicer,
+        ListServicer,
+        UsersServicer,
+    ]).run()
 
 
 if __name__ == '__main__':

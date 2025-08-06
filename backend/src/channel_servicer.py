@@ -17,6 +17,7 @@ from reboot.aio.auth.authorizers import allow
 
 
 class ChannelServicer(Channel.alpha.Servicer):
+
     def authorizer(self):
         return allow()
 
@@ -54,11 +55,7 @@ class ChannelServicer(Channel.alpha.Servicer):
         )
 
         responses = await asyncio.gather(
-            *[
-                Message.ref(item).GetDetails(context)
-                for item in page.items
-            ]
-        )
+            *[Message.ref(item).GetDetails(context) for item in page.items])
 
         return MessagesResponse(
             details=[response.details for response in responses])

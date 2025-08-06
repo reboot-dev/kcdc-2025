@@ -5,8 +5,9 @@ import ChatWindow from "./ChatWindow";
 import Login from "./Login";
 import MessagesWindow from "./MessagesWindow";
 import ReactionsWindow from "./ReactionWindow";
+import ChatbotsWindow from "./ChatbotsWindow";
 import { useChannel } from "./api/chat/v1/channel_rbt_react";
-import { useUser } from "./api/chat/v1/user_rbt_react";
+import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
 import { Button } from "./components/ui/button";
 
 const PAGE_SIZE = 20;
@@ -14,12 +15,18 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
   username,
   handleLogout,
 }) => {
-  const [window, setWindow] = useState<"chats" | "reactions">("chats");
+  const [window, setWindow] = useState<"chats" | "reactions" | "chatbots">(
+    "chats"
+  );
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const {
     useMessages,
     mutators: { post },
   } = useChannel({ id: "channel" });
+  const { useList } = useUsers({ id: "(singleton)" });
+  const { response: usersResponse } = useList();
+
+  console.log("usersList", usersResponse);
 
   const onMessage = (message: string) => {
     post({ author: username, text: message });
@@ -59,6 +66,15 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
         </Button>
         <Button
           className={
+            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
+            (window === "chatbots" && "bg-black text-white")
+          }
+          onClick={() => setWindow("chatbots")}
+        >
+          Chatbots
+        </Button>
+        <Button
+          className={
             "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white "
           }
           onClick={handleLogout}
@@ -67,43 +83,59 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
         </Button>
       </div>
       <div className="w-3/4">
-        {window === "chats" ? (
-          <ChatWindow>
-            <MessagesWindow
-              onReachTop={() =>
-                setItemsPerPage((itemsPerPage) => itemsPerPage + PAGE_SIZE)
-              }
-            >
-              {[...details]
-                .reverse()
-                .map(
-                  ({
-                    id,
-                    author,
-                    text,
-                    reactions,
-                  }: {
-                    id: string;
-                    author: string;
-                    text: string;
-                    reactions: any;
-                  }) => (
-                    <ChatMessage
-                      id={id}
-                      username={username}
-                      message={text}
-                      name={author}
-                      key={id}
-                      reactions={reactions}
-                    />
-                  )
-                )}
-            </MessagesWindow>
-            <ChatInput onSubmit={onMessage} />
-          </ChatWindow>
-        ) : (
-          <ReactionsWindow />
+        {window === "chats" && (
+          <div className="flex h-screen">
+            <ChatWindow>
+              <MessagesWindow
+                onReachTop={() =>
+                  setItemsPerPage((itemsPerPage) => itemsPerPage + PAGE_SIZE)
+                }
+              >
+                {[...details]
+                  .reverse()
+                  .map(
+                    ({
+                      id,
+                      author,
+                      text,
+                      reactions,
+                    }: {
+                      id: string;
+                      author: string;
+                      text: string;
+                      reactions: any;
+                    }) => (
+                      <ChatMessage
+                        id={id}
+                        username={username}
+                        message={text}
+                        name={author}
+                        key={id}
+                        reactions={reactions}
+                      />
+                    )
+                  )}
+              </MessagesWindow>
+              <ChatInput onSubmit={onMessage} />
+            </ChatWindow>
+            <div className="border w-1/2 p-4">
+              <h1 className="text-xl">Users</h1>
+              {usersResponse &&
+                usersResponse.users
+                  .map((user) => decodeURIComponent(user))
+                  .map((user) => (
+                    <div className="flex items-center" key={user}>
+                      <div key={user} className="p-2">
+                        {user}
+                      </div>
+                      <span className="flex w-3 h-3 me-3 bg-green-500 rounded-full"></span>
+                    </div>
+                  ))}
+            </div>
+          </div>
         )}
+        {window === "reactions" && <ReactionsWindow />}
+        {window === "chatbots" && <ChatbotsWindow />}
       </div>
     </div>
   );

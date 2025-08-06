@@ -26,6 +26,7 @@ from reboot.aio.auth.authorizers import allow
 
 
 class MessageServicer(Message.alpha.Servicer):
+
     def authorizer(self):
         return allow()
 
