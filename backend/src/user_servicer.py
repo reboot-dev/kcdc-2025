@@ -5,6 +5,7 @@ from chat.v1.user_rbt import (
     GetMessagesReactionsRequest,
     GetMessagesReactionsResponse,
 )
+from rbt_collections import List
 from rebootdev.aio.contexts import WriterContext, ReaderContext
 from reboot.aio.auth.authorizers import allow
 
