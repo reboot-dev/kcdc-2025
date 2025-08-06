@@ -1,18 +1,19 @@
 from chat.v1.message_rbt import (
-    Message,
+    AddReactionRequest,
+    AddReactionResponse,
+    AppendReactionToUsersMessageReactionsRequest,
+    AppendReactionToUsersMessageReactionsResponse,
+    Details,
     EditRequest,
     EditResponse,
     GetDetailsRequest,
     GetDetailsResponse,
-    AddReactionRequest,
-    AddReactionResponse,
-    RemoveReactionRequest,
-    RemoveReactionResponse,
-    AppendReactionToUsersMessageReactionsRequest,
-    AppendReactionToUsersMessageReactionsResponse,
     GetReactionsRequest,
     GetReactionsResponse,
-    Details,
+    Message,
+    MessageReaction,
+    RemoveReactionRequest,
+    RemoveReactionResponse,
 )
 from rbt_collections import List
 from rebootdev.aio.contexts import (
@@ -65,27 +66,25 @@ class MessageServicer(Message.alpha.Servicer):
         if request.author in self.state.reactions[request.unicode].ids:
             return AddReactionResponse()
 
-        async def append_to_user_message_reactions():
-            user_message_reactions = List(MessageReaction).ref(
-                f'{self.state.author}-message-reactions')
+        user_message_reactions = List(MessageReaction).ref(
+            f'{self.state.author}-message-reactions')
 
-            snippet = ' '.join(self.state.text.split()[:3])
+        snippet = ' '.join(self.state.text.split()[:3])
 
-            if len(snippet) < len(self.state.text):
-                snippet += "..."
+        if len(snippet) < len(self.state.text):
+            snippet += "..."
 
-            await user_message_reactions.Append(
-                context,
-                item=MessageReaction(
-                    message_id=context.state_id,
-                    unicode=request.unicode,
-                    author=request.author,
-                    snippet=snippet,
-                ),
-            )
+        await user_message_reactions.Append(
+            context,
+            item=MessageReaction(
+                message_id=context.state_id,
+                unicode=request.unicode,
+                author=request.author,
+                snippet=snippet,
+            ),
+        )
 
-        append_to_user_message_reactions(),
-        self.state.reactions[request.unicode].ids.append(request.author),
+        self.state.reactions[request.unicode].ids.append(request.author)
 
         return AddReactionResponse()
 
@@ -99,24 +98,22 @@ class MessageServicer(Message.alpha.Servicer):
         if request.author not in self.state.reactions[request.unicode].ids:
             return RemoveReactionResponse()
 
-        async def remove_from_user_message_reactions():
-            user_message_reactions = List(MessageReaction).ref(
-                f'{self.state.author}-message-reactions')
+        user_message_reactions = List(MessageReaction).ref(
+            f'{self.state.author}-message-reactions')
 
-            await user_message_reactions.Remove(
-                context,
-                item=MessageReaction(
-                    message_id=context.state_id,
-                    unicode=request.unicode,
-                    author=request.author,
-                ),
-            )
+        await user_message_reactions.Remove(
+            context,
+            item=MessageReaction(
+                message_id=context.state_id,
+                unicode=request.unicode,
+                author=request.author,
+            ),
+        )
 
         self.state.reactions[request.unicode].ids.remove(request.author)
+
         if len(self.state.reactions[request.unicode].ids) == 0:
             del self.state.reactions[request.unicode]
-
-        remove_from_user_message_reactions()
 
         return RemoveReactionResponse()
 
@@ -125,7 +122,6 @@ class MessageServicer(Message.alpha.Servicer):
         context: WorkflowContext,
         request: AppendReactionToUsersMessageReactionsRequest,
     ):
-
         user_message_reactions = List(MessageReaction).ref(
             f'{request.user}-message-reactions')
 

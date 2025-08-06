@@ -1,3 +1,4 @@
+from chat.v1.message_rbt import MessageReaction
 from chat.v1.user_rbt import (
     User,
     CreateRequest,
