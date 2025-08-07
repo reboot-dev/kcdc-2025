@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package chatbot.v1;
+
+import "rbt/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+service ChatbotMethods {
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {
+        constructor: {},
+      },
+    };
+  }
+
+  rpc ControlLoop(ControlLoopRequest) returns (ControlLoopResponse) {
+    option (rbt.v1alpha1.method) = {
+      workflow: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Chatbot {
+  option (rbt.v1alpha1.state) = {
+  };
+
+  string last_seen_id = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message CreateRequest {
+  string channel_id = 1;
+}
+
+message CreateResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message ControlLoopRequest {
+  string channel_id = 1;
+}
+
+message ControlLoopResponse {}
+
+////////////////////////////////////////////////////////////////////////

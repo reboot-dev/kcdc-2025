@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package pubsub.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
+import "queues/v1/queue.proto";
+import "rbt/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+service PubSubMethods {
+  rpc Publish(PublishRequest) returns (PublishResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
+    };
+  }
+
+  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
+    };
+  }
+
+  rpc Broker(BrokerRequest) returns (BrokerResponse) {
+    option (rbt.v1alpha1.method) = {
+      workflow: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Topic {
+  string name = 1;
+  repeated string queue_ids = 2;
+  repeated queues.v1.Item items = 3;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message PubSub {
+  option (rbt.v1alpha1.state) = {
+  };
+
+  // TODO: make `Topic` its own state type to partition this out.
+  repeated Topic topics = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message PublishRequest {
+  string topic = 1;
+
+  optional google.protobuf.Value value = 2;
+  // optional bytes bytes = 3;
+  optional google.protobuf.Any any = 4;
+
+  repeated queues.v1.Item items = 3;
+}
+
+message PublishResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message SubscribeRequest {
+  string topic = 1;
+  string queue_id = 2;
+}
+
+message SubscribeResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message BrokerRequest {
+  string topic = 1;
+}
+
+message BrokerResponse {}
+
+////////////////////////////////////////////////////////////////////////

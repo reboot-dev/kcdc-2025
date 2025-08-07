@@ -18,3 +18,5 @@ __pycache__/
 
 # Binary artifacts produced only during Reboot library development.
 /.unpublished-reboot-wheel/*.whl
+
+*~

@@ -7,6 +7,7 @@ from chat.v1.channel_rbt import (
     MessagesResponse,
 )
 from chat.v1.message_rbt import Message
+from pubsub.v1.pubsub_rbt import PubSub
 from reboot.aio.contexts import (
     ReaderContext,
     TransactionContext,
@@ -14,6 +15,7 @@ from reboot.aio.contexts import (
 )
 from rbt_collections import List
 from reboot.aio.auth.authorizers import allow
+from value import from_string
 
 
 class ChannelServicer(Channel.alpha.Servicer):
@@ -39,7 +41,13 @@ class ChannelServicer(Channel.alpha.Servicer):
         await List(str).ref(f'{context.state_id}-messages').Append(
             context,
             item=message_id,
-        ),
+        )
+
+        await self._pub_sub.Publish(
+            context,
+            topic="messages",
+            value=from_string(message_id),
+        )
 
         return PostResponse(message_id=message_id)
 
@@ -59,3 +67,7 @@ class ChannelServicer(Channel.alpha.Servicer):
 
         return MessagesResponse(
             details=[response.details for response in responses])
+
+    @property
+    def _pub_sub(self):
+        return PubSub.ref(f"{self.ref().state_id}-pub-sub")

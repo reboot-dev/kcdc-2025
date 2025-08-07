@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package queues.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
+import "rbt/v1alpha1/options.proto";
+
+////////////////////////////////////////////////////////////////////////
+
+message Item {
+  optional google.protobuf.Value value = 1;
+  // optional bytes bytes = 2;
+  optional google.protobuf.Any any = 3;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+service QueueMethods {
+  rpc Enqueue(EnqueueRequest) returns (EnqueueResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
+    };
+  }
+
+  rpc Dequeue(DequeueRequest) returns (DequeueResponse) {
+    option (rbt.v1alpha1.method) = {
+      workflow: {},
+    };
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message Queue {
+  option (rbt.v1alpha1.state) = {
+  };
+
+  // TODO: move to `Index` or `SortedMap`.
+  repeated Item items = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message EnqueueRequest {
+  optional google.protobuf.Value value = 1;
+  // optional bytes bytes = 2;
+  optional google.protobuf.Any any = 3;
+  repeated Item items = 4;
+}
+
+message EnqueueResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
+message DequeueRequest {
+  bool bulk = 1;
+
+  // Only dequeue `at_most` items.
+  optional uint32 at_most = 2;
+}
+
+message DequeueResponse {
+  // Non-bulk response.
+  optional google.protobuf.Value value = 1;
+  // optional bytes bytes = 2;
+  optional google.protobuf.Any any = 3;
+
+  // Bulk response.
+  repeated Item items = 4;
+}
+
+////////////////////////////////////////////////////////////////////////
