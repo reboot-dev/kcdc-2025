@@ -3,11 +3,15 @@ import json
 from chat.v1.channel_rbt import Channel
 from chat.v1.message_rbt import Details, Message
 from chatbot.v1.chatbot_rbt import (
+    ApproveRequest,
+    ApproveResponse,
     Chatbot,
     CreateRequest,
     CreateResponse,
     ControlLoopRequest,
     ControlLoopResponse,
+    ListPostsForApprovalRequest,
+    ListPostsForApprovalResponse,
 )
 from google.protobuf.json_format import MessageToDict
 from langchain.chat_models import init_chat_model
@@ -20,6 +24,7 @@ from reboot.aio.contexts import (
     WorkflowContext,
 )
 from reboot.aio.workflows import at_most_once
+from uuid import uuid4
 from value import as_string
 
 llm = init_chat_model("anthropic:claude-3-5-sonnet-latest")
@@ -34,10 +39,39 @@ class ChatbotServicer(Chatbot.alpha.Servicer):
     ) -> CreateResponse:
         # Schedule our control loop.
         await self.ref().schedule().ControlLoop(
-            context, channel_id=request.channel_id
+            context,
+            name=request.name,
+            channel_id=request.channel_id,
+            prompt=request.prompt,
+            human_in_the_loop=request.human_in_the_loop,
         )
 
         return CreateResponse()
+
+    async def ListPostsForApproval(
+        self,
+        context: ReaderContext,
+        request: ListPostsForApprovalRequest,
+    ) -> ListPostsForApprovalResponse:
+        return ListPostsForApprovalResponse(
+            posts=self.state.posts_for_approval,
+        )
+
+    async def Approve(
+        self,
+        context: TransactionContext,
+        request: ApproveRequest,
+    ) -> ApproveResponse:
+        for i in range(len(self.state.posts_for_approval)):
+            post = self.state.posts_for_approval[i]
+            if post.id == request.id:
+                await channel.Post(context, author=post.author, text=post.text)
+                del self.state.state.posts_for_approval[i]
+                break
+
+        # TODO: return an error if the post was never found?
+
+        return ApproveResponse()
 
     async def ControlLoop(
         self,
@@ -86,25 +120,10 @@ class ChatbotServicer(Chatbot.alpha.Servicer):
             if len(messages) == 0:
                 continue
 
-            system = ("You are a chatbot who reads messages and if the messages "
-                      "appear to be making any factual claims then you fact check "
-                      "the claims and respond whether or not you believe the "
-                      "claims are true or false. If the messages are not making "
-                      "any factual claims, just return with an empty JSON '{}'. "
-                      "If the factual claims are true, then "
-                      "you respond with the JSON '{ fact: true }', otherwise if "
-                      "the messages are false you respond with the JSON "
-                      "{ fact: false, reason: '...' } where the 'reason' property "
-                      "contains text of the reason you believe the statements to be "
-                      "false. Always start the 'reason' with something that "
-                      "first explains which factual claim you are referring to, "
-                      "directly including the author and the text or at least "
-                      "a snippet of the text.")
-
             llm_messages = [
                 {
                     "role": "system",
-                    "content": system
+                    "content": request.prompt,
                 },
                 {
                     "role": "user",
@@ -128,11 +147,26 @@ class ChatbotServicer(Chatbot.alpha.Servicer):
                     continue
 
                 if "fact" in result and not result["fact"]:
-                    await channel.Post(
-                        context,
-                        author="bot",
-                        text=result["reason"],
-                    )
+                    text = result["reason"]
+
+                    if request.human_in_the_loop:
+
+                        async def add_post_for_approval(state):
+                            state.posts_for_approval.append(
+                                Post(
+                                    id=uuid4(),
+                                    author=request.name,
+                                    text=text,
+                                ),
+                            )
+
+                        await self.ref().Write(context, add_post_for_approval)
+                    else:
+                        await channel.Post(
+                            context,
+                            author=request.name,
+                            text=text,
+                        )
             except:
                 import traceback
                 traceback.print_exc()

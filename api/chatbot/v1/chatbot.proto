@@ -15,6 +15,19 @@ service ChatbotMethods {
     };
   }
 
+  rpc ListPostsForApproval(ListPostsForApprovalRequest)
+      returns (ListPostsForApprovalResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+
+  rpc Approve(ApproveRequest) returns (ApproveResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {},
+    };
+  }
+
   rpc ControlLoop(ControlLoopRequest) returns (ControlLoopResponse) {
     option (rbt.v1alpha1.method) = {
       workflow: {},
@@ -24,25 +37,55 @@ service ChatbotMethods {
 
 ////////////////////////////////////////////////////////////////////////
 
+message Post {
+  string id = 1;
+  string author = 2;
+  string text = 3;
+}
+
+////////////////////////////////////////////////////////////////////////
+
 message Chatbot {
   option (rbt.v1alpha1.state) = {
   };
 
-  string last_seen_id = 1;
+  repeated Post posts_for_approval = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
 
 message CreateRequest {
-  string channel_id = 1;
+  string name = 1;
+  string channel_id = 2;
+  string prompt = 3;
+  bool human_in_the_loop = 4;
 }
 
 message CreateResponse {}
 
 ////////////////////////////////////////////////////////////////////////
 
+message ListPostsForApprovalRequest {}
+
+message ListPostsForApprovalResponse {
+  repeated Post posts = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message ApproveRequest {
+  string id = 1;
+}
+
+message ApproveResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
 message ControlLoopRequest {
-  string channel_id = 1;
+  string name = 1;
+  string channel_id = 2;
+  string prompt = 3;
+  bool human_in_the_loop = 4;
 }
 
 message ControlLoopResponse {}

@@ -7,8 +7,12 @@ from chat.v1.user_rbt import (
     GetMessagesReactionsResponse,
     AddRequest,
     AddResponse,
+    AddChatbotRequest,
+    AddChatbotResponse,
     ListRequest,
     ListResponse,
+    ListChatbotsRequest,
+    ListChatbotsResponse,
 )
 import uuid
 from rbt_collections import List
@@ -75,3 +79,28 @@ class UserServicer(User.alpha.Servicer):
         )
 
         return GetMessagesReactionsResponse(reactions=page.items)
+
+    async def AddChatbot(
+        self,
+        context: TransactionContext,
+        request: AddChatbotRequest,
+    ) -> AddChatbotResponse:
+
+        chatbot, _ = await Chatbot.Create(
+            context,
+            name=request.name,
+            channel_id=request.channel_id,
+            prompt=request.prompt,
+            human_in_the_loop=request.human_in_the_loop,
+        )
+
+        self.state.chatbot_ids.append(chatbot.state_id)
+
+        return AddChatbotResponse()
+
+    async def ListChatbots(
+        self,
+        context: ReaderContext,
+        request: ListChatbotsRequest,
+    ) -> ListChatbotsResponse:
+        return ListChatbotsResponse(chatbot_ids=self.state.chatbot_ids)
