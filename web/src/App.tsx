@@ -68,7 +68,7 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
   const { response } = useMessages({ itemsPerPage });
   const details = (response && response.details) || [];
 
-  if (!response || !usersResponse) {
+  if (!usersResponse) {
     return <div>Loading...</div>;
   }
 
