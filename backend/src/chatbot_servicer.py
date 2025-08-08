@@ -37,6 +37,8 @@ class ChatbotServicer(Chatbot.alpha.Servicer):
         context: TransactionContext,
         request: CreateRequest,
     ) -> CreateResponse:
+        self.state.channel_id = request.channel_id
+
         # Schedule our control loop.
         await self.ref().schedule().ControlLoop(
             context,
@@ -65,6 +67,7 @@ class ChatbotServicer(Chatbot.alpha.Servicer):
         for i in range(len(self.state.posts_for_approval)):
             post = self.state.posts_for_approval[i]
             if post.id == request.id:
+                channel = Channel.ref(self.state.channel_id)
                 await channel.Post(context, author=post.author, text=post.text)
                 del self.state.state.posts_for_approval[i]
                 break

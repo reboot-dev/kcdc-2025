@@ -49,7 +49,8 @@ message Chatbot {
   option (rbt.v1alpha1.state) = {
   };
 
-  repeated Post posts_for_approval = 1;
+  string channel_id = 1;
+  repeated Post posts_for_approval = 2;
 }
 
 ////////////////////////////////////////////////////////////////////////
