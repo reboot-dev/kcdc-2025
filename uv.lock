@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -875,7 +875,7 @@ dependencies = [
 requires-dist = [
     { name = "langchain", specifier = ">=0.3.27" },
     { name = "langchain-anthropic", specifier = ">=0.3.18" },
-    { name = "reboot", specifier = "==0.31.0" },
+    { name = "reboot", specifier = "==0.32.0" },
 ]
 
 [[package]]
@@ -1661,7 +1661,7 @@ wheels = [
 
 [[package]]
 name = "reboot"
-version = "0.31.0"
+version = "0.32.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -1703,10 +1703,10 @@ dependencies = [
     { name = "websockets" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/d0/4ff728c49e48ef071286be1571b8ba3bd80cae83d98a1e466a00580eaef0/reboot-0.31.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:ba4f2ce5f575547fbfcd7dcafa1c4b4fce02b99307cfdd562b176ddc31caf803", size = 12068121, upload-time = "2025-08-04T14:49:34.71Z" },
-    { url = "https://files.pythonhosted.org/packages/4e/3a/82b162d891fd39d99f799504a58865d875fcfcf4407b33e15673baaa6ad2/reboot-0.31.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:a2398b13ed42e3878ef9cb4b1fbbacf6b1de40f89ed67b65fbd902b212904779", size = 11989586, upload-time = "2025-08-04T15:20:07.581Z" },
-    { url = "https://files.pythonhosted.org/packages/59/62/ab214728be911b46dff518ff1e585494911e3cfa51074e06252b5137ef3a/reboot-0.31.0-py3-none-manylinux_2_31_aarch64.whl", hash = "sha256:df6f943fef3bcbbc997498ee1615f3da1bfd96c71179e39e1a24d08e5c01838a", size = 14420008, upload-time = "2025-08-04T14:42:56.769Z" },
-    { url = "https://files.pythonhosted.org/packages/40/06/034643bd8388dc8ccacd28a88b7389bbe9d5ccf5cceb2a8538a4e9de2aca/reboot-0.31.0-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:a04cc2088b166342c73487e3b462de16bbe336600fdd8153417119257a7ca5aa", size = 14366296, upload-time = "2025-08-04T14:42:32.92Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/7b/ce228a973979607e0c4a2e06fd39d412f1bd9963039df15e3e4f8eda1e4f/reboot-0.32.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:a71d9e94a403ca6446eb644579e12fc36c828a0cff98e1e339f06bc986f293e3", size = 12268496, upload-time = "2025-08-07T05:24:55.059Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/5a/963fcbfbc117d6b2aabd6e19420968cd6346100279a2ee3f5fe99a72223c/reboot-0.32.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:526cc32bd0daae979d5805ec5142f6ed1e2979168e2468f9749dc4726efef2a6", size = 12189965, upload-time = "2025-08-07T05:46:03.058Z" },
+    { url = "https://files.pythonhosted.org/packages/99/23/064c9ed4d2b43070335a5f93a046a0c7268452180ddd0465292ef445f8f1/reboot-0.32.0-py3-none-manylinux_2_31_aarch64.whl", hash = "sha256:d35eb9c63732574bcc6579a50fa7e54caf2208b8305f991a0107649e04ea7274", size = 14621982, upload-time = "2025-08-07T05:13:48.663Z" },
+    { url = "https://files.pythonhosted.org/packages/72/2b/9be942797f50762a0119409d50c796f28aa487e629a5f9b773be40644b19/reboot-0.32.0-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:066a3270d8cce8d17c080a35a33c081c1ab338ee16972f67701497cccb65c54a", size = 14568345, upload-time = "2025-08-07T05:13:11.686Z" },
 ]
 
 [[package]]

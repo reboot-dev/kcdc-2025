@@ -3,7 +3,7 @@ name = "kcdc-2025"
 version = "0.1.0"
 requires-python = ">= 3.10"
 dependencies = [
-    "reboot==0.31.0",
+    "reboot==0.32.0",
     "langchain>=0.3.27",
     "langchain-anthropic>=0.3.18",
 ]

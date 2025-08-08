@@ -9,6 +9,31 @@ import ChatbotsWindow from "./ChatbotsWindow";
 import { useChannel } from "./api/chat/v1/channel_rbt_react";
 import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
 import { Button } from "./components/ui/button";
+// import {
+//   Presence,
+//   usePresenceContext,
+// } from "@reboot-dev/reboot-std-react/presence";
+
+const UsersPane: FC<{ users: string[] }> = ({ users }) => {
+  // const { subscriberIds } = usePresenceContext();
+  return (
+    <>
+      {users.map((user) => (
+        <div className="flex items-center" key={user}>
+          <div key={user} className="p-2">
+            {decodeURIComponent(user)}
+          </div>
+          <span
+            className={`flex w-3 h-3 me-3 ${
+              //subscriberIds.includes(user)
+              true ? "bg-green-500" : "bg-gray-500"
+            } rounded-full`}
+          ></span>
+        </div>
+      ))}
+    </>
+  );
+};
 
 const PAGE_SIZE = 20;
 const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
@@ -43,7 +68,12 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
   const { response } = useMessages({ itemsPerPage });
   const details = (response && response.details) || [];
 
+  if (!response || !usersResponse) {
+    return <div>Loading...</div>;
+  }
+
   return (
+    // <Presence id={"presence"} subscriberId={username}>
     <div className="flex">
       <div className="w-1/4 border-r flex flex-col p-4 h-screen">
         <Button
@@ -120,17 +150,7 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
             </ChatWindow>
             <div className="border w-1/2 p-4">
               <h1 className="text-xl">Users</h1>
-              {usersResponse &&
-                usersResponse.users
-                  .map((user) => decodeURIComponent(user))
-                  .map((user) => (
-                    <div className="flex items-center" key={user}>
-                      <div key={user} className="p-2">
-                        {user}
-                      </div>
-                      <span className="flex w-3 h-3 me-3 bg-green-500 rounded-full"></span>
-                    </div>
-                  ))}
+              <UsersPane users={usersResponse.users} />
             </div>
           </div>
         )}
@@ -138,6 +158,7 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
         {window === "chatbots" && <ChatbotsWindow />}
       </div>
     </div>
+    //</Presence>
   );
 };
 
