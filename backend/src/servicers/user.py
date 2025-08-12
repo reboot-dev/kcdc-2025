@@ -1,29 +1,34 @@
-from chat.v1.message_rbt import MessageReaction
 from chat.v1.user_rbt import (
-    User,
-    CreateRequest,
-    CreateResponse,
-    GetMessagesReactionsRequest,
-    GetMessagesReactionsResponse,
-    AddRequest,
-    AddResponse,
     AddChatbotRequest,
     AddChatbotResponse,
-    ListRequest,
-    ListResponse,
+    AddRequest,
+    AddResponse,
+    CreateRequest,
+    CreateResponse,
     ListChatbotsRequest,
     ListChatbotsResponse,
+    ListRequest,
+    ListResponse,
+    MessageReaction,
+    MessagesReactionsRequest,
+    MessagesReactionsResponse,
+    User,
+    Users,
 )
-import uuid
-from rbt_collections import List
-from reboot.aio.contexts import WriterContext, ReaderContext, TransactionContext
+from chatbot.v1.chatbot_rbt import Chatbot
 from reboot.aio.auth.authorizers import allow
-from chat.v1.user_rbt import Users 
+from reboot.aio.contexts import (
+    ReaderContext,
+    TransactionContext,
+    WriterContext,
+)
+from reboot.protobuf import unpack
+from reboot.std.index.v1.index import Index
 
 USERS_SINGLETON = "(singleton)"
 
 
-class UsersServicer(Users.alpha.Servicer):
+class UsersServicer(Users.Servicer):
 
     def authorizer(self):
         return allow()
@@ -36,16 +41,15 @@ class UsersServicer(Users.alpha.Servicer):
         self.state.users.append(request.user)
         return AddResponse()
 
-
     async def List(
         self,
         context: ReaderContext,
         request: ListRequest,
     ) -> ListResponse:
-       return ListResponse(users=self.state.users)
+        return ListResponse(users=self.state.users)
 
 
-class UserServicer(User.alpha.Servicer):
+class UserServicer(User.Servicer):
 
     def authorizer(self):
         return allow()
@@ -58,27 +62,31 @@ class UserServicer(User.alpha.Servicer):
         if context.constructor:
             users = Users.ref(USERS_SINGLETON)
             await users.Add(context, user=context.state_id)
+            await Index.Create(
+                context,
+                self._messages_reactions.state_id,
+                order=100,
+            )
 
         return CreateResponse()
 
-    async def GetMessagesReactions(
+    async def MessagesReactions(
         self,
         context: ReaderContext,
-        request: GetMessagesReactionsRequest,
+        request: MessagesReactionsRequest,
     ):
-        reactions: list[MessageReaction] = []
-
-        user_reactions_list = List(MessageReaction).ref(
-            f'{context.state_id}-message-reactions'
-        )
-
-        page = await user_reactions_list.GetPage(
+        # Fetch all reactions to user's messages.
+        response = await self._messages_reactions.ReverseRange(
             context,
-            page=request.page,
-            items_per_page=request.items_per_page,
+            limit=request.limit,
         )
 
-        return GetMessagesReactionsResponse(reactions=page.items)
+        reactions = {
+            entry.key: unpack(entry.any, MessageReaction)
+            for entry in response.entries
+        }
+
+        return MessagesReactionsResponse(reactions=reactions)
 
     async def AddChatbot(
         self,
@@ -104,3 +112,7 @@ class UserServicer(User.alpha.Servicer):
         request: ListChatbotsRequest,
     ) -> ListChatbotsResponse:
         return ListChatbotsResponse(chatbot_ids=self.state.chatbot_ids)
+
+    @property
+    def _messages_reactions(self):
+        return Index.ref(f'{self.ref().state_id}-messages-reactions')

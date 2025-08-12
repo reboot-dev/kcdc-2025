@@ -3,15 +3,31 @@ import { FC, useState } from "react";
 import { useUser } from "./api/chat/v1/user_rbt_react";
 
 const PAGE_SIZE = 40;
+
+const dateFromUUIDv7 = (uuid: string): Date => {
+  // Split the UUID into its components.
+  const parts = uuid.split("-");
+
+  // The second part of the UUID contains the high bits of the
+  // timestamp (48 bits in total).
+  const highBitsHex = parts[0] + parts[1].slice(0, 4);
+
+  // Convert the high bits from hex to decimal. The UUIDv7 timestamp
+  // is the number of milliseconds since Unix epoch (January 1, 1970).
+  const timestampInMilliseconds = parseInt(highBitsHex, 16);
+
+  return new Date(timestampInMilliseconds);
+};
+
 const ReactionsWindow: FC<{}> = () => {
   const username = localStorage.getItem("username");
 
-  const [itemsPerPage, setItemsPerPage] = useState(40);
-  const { useGetMessagesReactions } = useUser({ id: username });
+  const [limit, setLimit] = useState(40);
+  const { useMessagesReactions } = useUser({ id: username });
 
-  const { response } = useGetMessagesReactions({ page: -1, itemsPerPage });
+  const { response } = useMessagesReactions({ limit });
 
-  const reactions = (response && response.reactions) || [];
+  const reactions = (response && response.reactions) || {};
 
   const handleScroll = (e: React.UIEvent<HTMLElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target as HTMLElement;
@@ -20,23 +36,27 @@ const ReactionsWindow: FC<{}> = () => {
     );
 
     if (position === 100) {
-      setItemsPerPage((itemsPerPage) => itemsPerPage + PAGE_SIZE);
+      setLimit((limit) => limit + PAGE_SIZE);
     }
   };
 
   return (
     <div onScroll={handleScroll} className="relative h-screen overflow-y-auto">
-      {[...reactions].reverse().map((reaction) => {
-        return (
-          <>
-            <div className="p-4">
-              {reaction.author} reacted with {reaction.unicode} to your message{" "}
-              <i>"{reaction.snippet}"</i>
+      {Object.keys(reactions)
+        .sort()
+        .reverse()
+        .map((id) => {
+          return (
+            <div key={id}>
+              <div className="p-4">
+                {reactions[id].user} reacted with {reactions[id].unicode} to
+                your message <i>"{reactions[id].snippet}"</i> at{" "}
+                {dateFromUUIDv7(id).toLocaleString()}
+              </div>
+              <Separator />
             </div>
-            <Separator />
-          </>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };

@@ -8,6 +8,14 @@ import "rbt/v1alpha1/options.proto";
 ////////////////////////////////////////////////////////////////////////
 
 service ChannelMethods {
+  rpc Create(ChannelCreateRequest) returns (ChannelCreateResponse) {
+    option (rbt.v1alpha1.method) = {
+      transaction: {
+        constructor: {},
+      },
+    };
+  }
+
   rpc Post(PostRequest) returns (PostResponse) {
     option (rbt.v1alpha1.method) = {
       transaction: {},
@@ -31,6 +39,11 @@ message Channel {
 
 ////////////////////////////////////////////////////////////////////////
 
+message ChannelCreateRequest {}
+message ChannelCreateResponse {}
+
+////////////////////////////////////////////////////////////////////////
+
 message PostRequest {
   string author = 1;
   string text = 2;
@@ -43,12 +56,11 @@ message PostResponse {
 ////////////////////////////////////////////////////////////////////////
 
 message MessagesRequest {
-  int32 page = 1;
-  uint32 items_per_page = 2;
+  uint32 limit = 1;
 }
 
 message MessagesResponse {
-  repeated Details details = 1;
+  map<string, Details> messages = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////

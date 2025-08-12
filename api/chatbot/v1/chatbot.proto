@@ -7,6 +7,12 @@ import "rbt/v1alpha1/options.proto";
 ////////////////////////////////////////////////////////////////////////
 
 service ChatbotMethods {
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (rbt.v1alpha1.method) = {
+      reader: {},
+    };
+  }
+
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (rbt.v1alpha1.method) = {
       transaction: {
@@ -25,6 +31,12 @@ service ChatbotMethods {
   rpc Approve(ApproveRequest) returns (ApproveResponse) {
     option (rbt.v1alpha1.method) = {
       transaction: {},
+    };
+  }
+
+  rpc Deny(DenyRequest) returns (DenyResponse) {
+    option (rbt.v1alpha1.method) = {
+      writer: {},
     };
   }
 
@@ -51,6 +63,17 @@ message Chatbot {
 
   string channel_id = 1;
   repeated Post posts_for_approval = 2;
+  string name = 3;
+  string prompt = 4;
+  bool human_in_the_loop = 5;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+message GetRequest {}
+
+message GetResponse {
+  Chatbot chatbot = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -79,6 +102,12 @@ message ApproveRequest {
 }
 
 message ApproveResponse {}
+
+message DenyRequest {
+  string id = 1;
+}
+
+message DenyResponse {}
 
 ////////////////////////////////////////////////////////////////////////
 

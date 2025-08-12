@@ -9,7 +9,7 @@ import { useMessage } from "./api/chat/v1/message_rbt_react";
 
 interface ReactionProps {
   reaction: [string, number];
-  authors: [string];
+  users: { [user: string]: string };
   messageId: string;
   username: string;
   className?: string;
@@ -19,22 +19,20 @@ interface ReactionProps {
 const Reaction: FC<ReactionProps> = ({
   reaction: [emoji, count],
   messageId,
-  authors,
+  users,
   username,
   active = false,
   className = "",
 }) => {
   const [variant, setVariant] = useState<"secondary" | "outline">("secondary");
 
-  const {
-    mutators: { addReaction, removeReaction },
-  } = useMessage({ id: messageId });
+  const { addReaction, removeReaction } = useMessage({ id: messageId });
 
   const handleClick = () => {
-    if (authors.includes(username)) {
-      removeReaction({ unicode: emoji, author: username });
+    if (active) {
+      removeReaction({ unicode: emoji, user: username });
     } else {
-      addReaction({ unicode: emoji, author: username });
+      addReaction({ unicode: emoji, user: username });
     }
   };
 
@@ -54,7 +52,7 @@ const Reaction: FC<ReactionProps> = ({
       <HoverCardContent>
         <div className="flex flex-col items-center">
           <div className="text-3xl">{emoji}</div>
-          <div>{`${authors.join(", ")} reacted with ${emoji}`}</div>
+          <div>{`${Object.keys(users).join(", ")} reacted with ${emoji}`}</div>
         </div>
       </HoverCardContent>
     </HoverCard>

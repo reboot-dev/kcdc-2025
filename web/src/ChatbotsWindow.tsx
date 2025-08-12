@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-
-interface Chatbot {
-  id: string;
-  name: string;
-  prompt: string;
-  requiresApproval: boolean;
-}
-
+import { useUser } from "./api/chat/v1/user_rbt_react";
+import { Chatbot, useChatbot } from "./api/chatbot/v1/chatbot_rbt_react";
 interface ChatbotFormProps {
   onCreateChatbot: (chatbot: Omit<Chatbot, "id">) => void;
 }
@@ -22,7 +16,8 @@ const ChatbotForm: React.FC<ChatbotFormProps> = ({ onCreateChatbot }) => {
       onCreateChatbot({
         name: name.trim(),
         prompt: prompt.trim(),
-        requiresApproval,
+        channelId: "channel",
+        humanInTheLoop: requiresApproval,
       });
       setName("");
       setPrompt("");
@@ -99,37 +94,44 @@ const ChatbotForm: React.FC<ChatbotFormProps> = ({ onCreateChatbot }) => {
   );
 };
 
-interface ChatbotListProps {
-  chatbots: Chatbot[];
-}
+const ChatBot = ({ chatbotId }: { chatbotId: string }) => {
+  const { useGet } = useChatbot({ id: chatbotId });
 
-const ChatbotList: React.FC<ChatbotListProps> = ({ chatbots }) => {
+  const { response } = useGet();
+  const chatbot = response?.chatbot;
+  if (!chatbot) {
+    return <div></div>;
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 p-2 hover:shadow-sm transition-shadow m-2">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium text-gray-900">{chatbot.name}</h4>
+        {chatbot.humanInTheLoop && (
+          <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 ml-2">
+            Approval Required
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+        {chatbot.prompt.slice(0, 40) + "..."}
+      </p>
+    </div>
+  );
+};
+
+const ChatbotList: React.FC<{ chatbotIds: string[] }> = ({ chatbotIds }) => {
   return (
     <div>
       <h3 className="text-lg font-medium text-gray-900 mb-4">Your Chatbots</h3>
-      {chatbots.length === 0 ? (
+      {chatbotIds.length === 0 ? (
         <div className="text-gray-500 text-center py-8">
           No chatbots created yet
         </div>
       ) : (
         <div className="flex">
-          {chatbots.map((chatbot) => (
-            <div
-              key={chatbot.id}
-              className="bg-white border border-gray-200 p-2 hover:shadow-sm transition-shadow w-fit m-2"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900">{chatbot.name}</h4>
-                {chatbot.requiresApproval && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 ml-2">
-                    Approval Required
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                {chatbot.prompt}
-              </p>
-            </div>
+          {chatbotIds.map((id) => (
+            <ChatBot key={id} chatbotId={id} />
           ))}
         </div>
       )}
@@ -137,35 +139,13 @@ const ChatbotList: React.FC<ChatbotListProps> = ({ chatbots }) => {
   );
 };
 
-const ChatbotsWindow: React.FC = () => {
-  const [chatbots, setChatbots] = useState<Chatbot[]>([
-    {
-      id: "1",
-      name: "Example Bot",
-      prompt: "Hello, I am an example bot.",
-      requiresApproval: false,
-    },
-    {
-      id: "2",
-      name: "Approval Bot",
-      prompt: "I need approval.",
-      requiresApproval: true,
-    },
-    {
-      id: "3",
-      name: "Simple Bot",
-      prompt: "I am a simple bot.",
-      requiresApproval: false,
-    },
-  ]);
+const ChatbotsWindow: React.FC<{ user: string }> = ({ user }) => {
+  const { useListChatbots, addChatbot } = useUser({ id: user });
+  const { response: chatbotsResponse } = useListChatbots();
 
-  const handleCreateChatbot = (newChatbot: Omit<Chatbot, "id">) => {
-    const chatbot: Chatbot = {
-      ...newChatbot,
-      id: Date.now().toString(), // Simple ID generation
-    };
-    setChatbots((prev) => [...prev, chatbot]);
-  };
+  if (!chatbotsResponse) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -174,8 +154,8 @@ const ChatbotsWindow: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        <ChatbotForm onCreateChatbot={handleCreateChatbot} />
-        <ChatbotList chatbots={chatbots} />
+        <ChatbotForm onCreateChatbot={addChatbot} />
+        <ChatbotList chatbotIds={chatbotsResponse.chatbotIds} />
       </div>
     </div>
   );
