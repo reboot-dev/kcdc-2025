@@ -19,3 +19,23 @@ dev run --application=backend/src/main.py
 
 # When expunging, expunge that state we've saved.
 dev expunge --name=chat
+
+# Set the application name for commands that require it.
+cloud up --name=chat
+cloud down --name=chat
+serve run --name=chat
+
+# Tell `rbt serve` that this is a Python application.
+serve run --python
+
+# The number of partitions of our data to create. Each partition runs as a
+# separate process, and so increasing the partition count requires more
+# cores but also allows the application to use more cores.
+serve run --partitions=4
+
+# Leave TLS termination to the external load balancer; expose a non-SSL port to
+# that loadbalancer.
+serve run --tls=external
+
+# Run the application!
+serve run --application=backend/src/main.py
