@@ -6,15 +6,9 @@ import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
 import { Button } from "./components/ui/button";
 
 const UsersPane: FC = () => {
-  const [response, setResponse] = useState<{ users: string[] }>();
+  const { useList } = useUsers({ id: "(singleton)" });
 
-  const { list } = useUsers({ id: "(singleton)" });
-
-  useEffect(() => {
-    list().then(({ response }) => {
-      setResponse(response);
-    });
-  }, []);
+  const { response } = useList();
 
   if (!response) {
     return <div>Loading...</div>;
