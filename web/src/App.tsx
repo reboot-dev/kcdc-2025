@@ -15,7 +15,7 @@ import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
 import { useChatbot } from "./api/chatbot/v1/chatbot_rbt_react";
 import { Button } from "./components/ui/button";
 
-const UsersPane: FC<{ users: string[] }> = ({ users }) => {
+const UsersPane: FC = () => {
   const { subscriberIds } = usePresenceContext();
 
   const { useList } = useUsers({ id: "(singleton)" });
@@ -26,9 +26,11 @@ const UsersPane: FC<{ users: string[] }> = ({ users }) => {
     return <div>Loading...</div>;
   }
 
+  const users = response.users;
+
   return (
     <>
-      {response.users.map((user) => (
+      {users.map((user) => (
         <div className="flex items-center" key={user}>
           <div key={user} className="p-2">
             {decodeURIComponent(user)}
