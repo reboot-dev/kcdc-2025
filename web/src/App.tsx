@@ -17,9 +17,18 @@ import { Button } from "./components/ui/button";
 
 const UsersPane: FC<{ users: string[] }> = ({ users }) => {
   const { subscriberIds } = usePresenceContext();
+
+  const { useList } = useUsers({ id: "(singleton)" });
+
+  const { response } = useList();
+
+  if (!response) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
-      {users.map((user) => (
+      {response.users.map((user) => (
         <div className="flex items-center" key={user}>
           <div key={user} className="p-2">
             {decodeURIComponent(user)}
@@ -97,9 +106,15 @@ const PendingChatbotMessage: FC<{ chatbotId: string; index: number }> = ({
   ));
 };
 
-const PendingChatbotMessages: FC<{ chatbotIds?: string[] }> = ({
-  chatbotIds,
+const PendingChatbotMessages: FC<{ username: string }> = ({
+  username,
 }) => {
+  const { useListChatbots } = useUser({ id: username });
+
+  const { response } = useListChatbots();
+
+  const chatbotIds: string[] | undefined = response?.chatbotIds;
+
   if (!chatbotIds || chatbotIds.length === 0) {
     return <div className="p-4"></div>;
   }
@@ -125,115 +140,105 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
 
   const { post, useMessages } = useChannel({ id: "channel" });
 
-  const { useList } = useUsers({ id: "(singleton)" });
-
-  const { response: usersResponse } = useList();
-
-  const { create, useListChatbots } = useUser({ id: username });
-
-  useEffect(() => {
-    create();
-  }, []);
-
   const onMessage = (message: string) => {
     post({ author: username, text: message });
   };
 
   const { response } = useMessages({ limit });
-  const messages = (response && response.messages) || {};
-  const { response: chatbotsResponse } = useListChatbots();
 
-  if (!usersResponse) {
-    return <div>Loading...</div>;
-  }
+  const messages = (response && response.messages) || {};
+
+  const { create } = useUser({ id: username });
+
+  useEffect(() => {
+    create();
+  }, []);
 
   return (
-    <Presence id={"presence"} subscriberId={username}>
-      <div className="flex">
-        <div className="w-1/4 border-r flex flex-col p-4 h-screen">
-          <Button
-            className={
-              "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
-              (window === "chats" && "bg-black text-white")
-            }
-            onClick={() => setWindow("chats")}
-          >
-            Chats
-          </Button>
-          <Button
-            className={
-              "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
-              (window === "reactions" && "bg-black text-white")
-            }
-            onClick={() => setWindow("reactions")}
-          >
-            Reactions
-          </Button>
-          <Button
-            className={
-              "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
-              (window === "chatbots" && "bg-black text-white")
-            }
-            onClick={() => setWindow("chatbots")}
-          >
-            Chatbots
-          </Button>
-          <Button
-            className={
-              "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white "
-            }
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
-        </div>
-        <div className="w-3/4">
-          {window === "chats" && (
-            <div className="flex h-screen">
-              <ChatWindow>
-                <MessagesWindow
-                  onReachTop={() => setLimit((limit) => limit + PAGE_SIZE)}
-                >
-                  {post.pending.map((message) => (
+    <div className="flex">
+      <div className="w-1/4 border-r flex flex-col p-4 h-screen">
+        <Button
+          className={
+            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
+            (window === "chats" && "bg-black text-white")
+          }
+          onClick={() => setWindow("chats")}
+        >
+          Chats
+        </Button>
+        <Button
+          className={
+            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
+            (window === "reactions" && "bg-black text-white")
+          }
+          onClick={() => setWindow("reactions")}
+        >
+          Reactions
+        </Button>
+        <Button
+          className={
+            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
+            (window === "chatbots" && "bg-black text-white")
+          }
+          onClick={() => setWindow("chatbots")}
+        >
+          Chatbots
+        </Button>
+        <Button
+          className={
+            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white "
+          }
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </div>
+      <div className="w-3/4">
+        {window === "chats" && (
+          <div className="flex h-screen">
+            <ChatWindow>
+              <MessagesWindow
+                onReachTop={() => setLimit((limit) => limit + PAGE_SIZE)}
+              >
+                {post.pending.map((message) => (
+                  <ChatMessage
+                    id={message.idempotencyKey}
+                    username={username}
+                    message={message.request.text}
+                    name={message.request.author}
+                    reactions={{}}
+                    pending={true}
+                    key={message.idempotencyKey}
+                  />
+                ))}
+                {Object.keys(messages)
+                  .sort()
+                  .reverse()
+                  .map((timestamp) => (
                     <ChatMessage
-                      id={message.idempotencyKey}
+                      timestamp={timestamp}
+                      id={messages[timestamp].id}
                       username={username}
-                      message={message.request.text}
-                      name={message.request.author}
-                      reactions={{}}
-                      pending={true}
-                      key={message.idempotencyKey}
+                      message={messages[timestamp].text}
+                      name={messages[timestamp].author}
+                      key={messages[timestamp].id}
+                      reactions={messages[timestamp].reactions}
                     />
                   ))}
-                  {Object.keys(messages)
-                    .sort()
-                    .reverse()
-                    .map((timestamp) => (
-                      <ChatMessage
-                        timestamp={timestamp}
-                        id={messages[timestamp].id}
-                        username={username}
-                        message={messages[timestamp].text}
-                        name={messages[timestamp].author}
-                        key={messages[timestamp].id}
-                        reactions={messages[timestamp].reactions}
-                      />
-                    ))}
-                </MessagesWindow>
-                <ChatInput onSubmit={onMessage} />
-              </ChatWindow>
-              <div className="border w-1/2 p-4">
-                <h1 className="text-xl">Users</h1>
-                <UsersPane users={usersResponse.users} />
-              </div>
+              </MessagesWindow>
+              <ChatInput onSubmit={onMessage} />
+            </ChatWindow>
+            <div className="border w-1/2 p-4">
+              <h1 className="text-xl">Users</h1>
+              <UsersPane />
             </div>
-          )}
-          {window === "reactions" && <ReactionsWindow />}
-          {window === "chatbots" && <ChatbotsWindow user={username} />}
-          <PendingChatbotMessages chatbotIds={chatbotsResponse?.chatbotIds} />
-        </div>
+          </div>
+        )}
+        {window === "reactions" && <ReactionsWindow />}
+        {window === "chatbots" && <ChatbotsWindow user={username} />}
+        <PendingChatbotMessages username={username} />
       </div>
-    </Presence>
+    </div>
   );
 };
 
@@ -253,7 +258,11 @@ function App() {
 
   if (username === undefined) return <Login onSubmit={handleLogin} />;
 
-  return <LoggedInChatApp username={username} handleLogout={handleLogout} />;
+  return (
+    <Presence id={"presence"} subscriberId={username}>
+      <LoggedInChatApp username={username} handleLogout={handleLogout} />;
+    </Presence>
+  );
 }
 
 export default App;
