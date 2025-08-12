@@ -260,7 +260,7 @@ function App() {
 
   return (
     <Presence id={"presence"} subscriberId={username}>
-      <LoggedInChatApp username={username} handleLogout={handleLogout} />;
+      <LoggedInChatApp username={username} handleLogout={handleLogout} />
     </Presence>
   );
 }
