@@ -108,9 +108,7 @@ const PendingChatbotMessage: FC<{ chatbotId: string; index: number }> = ({
   ));
 };
 
-const PendingChatbotMessages: FC<{ username: string }> = ({
-  username,
-}) => {
+const PendingChatbotMessages: FC<{ username: string }> = ({ username }) => {
   const { useListChatbots } = useUser({ id: username });
 
   const { response } = useListChatbots();
@@ -211,6 +209,7 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
                     reactions={{}}
                     pending={true}
                     key={message.idempotencyKey}
+                    timestamp={new Date().toLocaleString()}
                   />
                 ))}
                 {Object.keys(messages)
