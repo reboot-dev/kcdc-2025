@@ -5,9 +5,12 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+const url =
+  import.meta.env.VITE_APP_CHAT_REBOOT_ENDPOINT || "http://localhost:9991";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RebootClientProvider url={"http://localhost:9991"}>
+    <RebootClientProvider url={url}>
       <App />
     </RebootClientProvider>
   </React.StrictMode>
