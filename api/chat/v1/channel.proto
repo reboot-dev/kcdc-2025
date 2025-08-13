@@ -34,7 +34,6 @@ service ChannelMethods {
 message Channel {
   option (rbt.v1alpha1.state) = {
   };
-  uint64 messages = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
