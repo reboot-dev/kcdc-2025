@@ -22,6 +22,10 @@ const dateFromUUIDv7 = (uuid: string): Date => {
 const ReactionsWindow: FC<{}> = () => {
   const username = localStorage.getItem("username");
 
+  if (username === null) {
+    throw new Error("Username not found in localStorage");
+  }
+
   const [limit, setLimit] = useState(40);
   const { useMessagesReactions } = useUser({ id: username });
 
