@@ -54,18 +54,6 @@ service UserMethods {
       reader: {},
     };
   }
-
-  rpc AddChatbot(AddChatbotRequest) returns (AddChatbotResponse) {
-    option (rbt.v1alpha1.method) = {
-      transaction: {},
-    };
-  }
-
-  rpc ListChatbots(ListChatbotsRequest) returns (ListChatbotsResponse) {
-    option (rbt.v1alpha1.method) = {
-      reader: {},
-    };
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -73,8 +61,6 @@ service UserMethods {
 message User {
   option (rbt.v1alpha1.state) = {
   };
-
-  repeated string chatbot_ids = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -107,25 +93,6 @@ message MessagesReactionsRequest {
 message MessagesReactionsResponse {
   // Map from reaction ID (UUIDv7) to `MessageReaction`.
   map<string, MessageReaction> reactions = 1;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-message AddChatbotRequest {
-  string name = 1;
-  string channel_id = 2;
-  string prompt = 3;
-  bool human_in_the_loop = 4;
-}
-
-message AddChatbotResponse {}
-
-////////////////////////////////////////////////////////////////////////
-
-message ListChatbotsRequest {}
-
-message ListChatbotsResponse {
-  repeated string chatbot_ids = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////

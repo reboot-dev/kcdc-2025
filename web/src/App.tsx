@@ -6,13 +6,11 @@ import { FC, useEffect, useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatMessage from "./ChatMessage";
 import ChatWindow from "./ChatWindow";
-import ChatbotsWindow from "./ChatbotsWindow";
 import Login from "./Login";
 import MessagesWindow from "./MessagesWindow";
 import ReactionsWindow from "./ReactionWindow";
 import { useChannel } from "./api/chat/v1/channel_rbt_react";
 import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
-import { useChatbot } from "./api/chatbot/v1/chatbot_rbt_react";
 import { Button } from "./components/ui/button";
 
 const UsersPane: FC = () => {
@@ -46,96 +44,12 @@ const UsersPane: FC = () => {
   );
 };
 
-const PendingChatbotMessage: FC<{ chatbotId: string; index: number }> = ({
-  chatbotId,
-  index,
-}) => {
-  const { useGet, approve, deny } = useChatbot({ id: chatbotId });
-
-  const { response } = useGet();
-  const chatbot = response?.chatbot;
-
-  if (!chatbot) {
-    return <div></div>;
-  }
-
-  const handleApprove = (postId: string) => {
-    approve({ id: postId });
-  };
-
-  const handleDismiss = (postId: string) => {
-    deny({ id: postId });
-  };
-
-  if (chatbot.postsForApproval.length === 0) {
-    return <div></div>;
-  }
-
-  return chatbot.postsForApproval.map((post) => (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center
-      bg-black bg-opacity-50"
-      style={{
-        zIndex: 1000 + index,
-      }}
-      key={post.id}
-    >
-      <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Pending Chatbot Approval
-          </h2>
-          <p className="text-gray-600 text-sm mb-4">{post.author}</p>
-          <p className="text-gray-600 text-sm mb-4">{post.text}</p>
-        </div>
-
-        <div className="flex justify-end space-x-3">
-          <Button
-            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2"
-            onClick={() => handleDismiss(post.id)}
-          >
-            Dismiss
-          </Button>
-          <Button
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2"
-            onClick={() => handleApprove(post.id)}
-          >
-            Approve
-          </Button>
-        </div>
-      </div>
-    </div>
-  ));
-};
-
-const PendingChatbotMessages: FC<{ username: string }> = ({
-  username,
-}) => {
-  const { useListChatbots } = useUser({ id: username });
-
-  const { response } = useListChatbots();
-
-  const chatbotIds: string[] | undefined = response?.chatbotIds;
-
-  if (!chatbotIds || chatbotIds.length === 0) {
-    return <div className="p-4"></div>;
-  }
-
-  return (
-    <div className="flex flex-col z-10 absolute bottom-0 right-0 p-4 bg-white">
-      {chatbotIds.map((id, index) => (
-        <PendingChatbotMessage key={id} chatbotId={id} index={index} />
-      ))}
-    </div>
-  );
-};
-
 const PAGE_SIZE = 20;
 const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
   username,
   handleLogout,
 }) => {
-  const [window, setWindow] = useState<"chats" | "reactions" | "chatbots">(
+  const [window, setWindow] = useState<"chats" | "reactions">(
     "chats"
   );
   const [limit, setLimit] = useState(20);
@@ -176,15 +90,6 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
           onClick={() => setWindow("reactions")}
         >
           Reactions
-        </Button>
-        <Button
-          className={
-            "m-2 bg-white text-darkgrey border hover:bg-black hover:text-white " +
-            (window === "chatbots" && "bg-black text-white")
-          }
-          onClick={() => setWindow("chatbots")}
-        >
-          Chatbots
         </Button>
         <Button
           className={
@@ -237,8 +142,6 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
           </div>
         )}
         {window === "reactions" && <ReactionsWindow />}
-        {window === "chatbots" && <ChatbotsWindow user={username} />}
-        <PendingChatbotMessages username={username} />
       </div>
     </div>
   );

@@ -1,12 +1,8 @@
 from chat.v1.user_rbt import (
-    AddChatbotRequest,
-    AddChatbotResponse,
     AddRequest,
     AddResponse,
     CreateRequest,
     CreateResponse,
-    ListChatbotsRequest,
-    ListChatbotsResponse,
     ListRequest,
     ListResponse,
     MessageReaction,
@@ -15,7 +11,6 @@ from chat.v1.user_rbt import (
     User,
     Users,
 )
-from chatbot.v1.chatbot_rbt import Chatbot
 from reboot.aio.auth.authorizers import allow
 from reboot.aio.contexts import (
     ReaderContext,
@@ -87,31 +82,6 @@ class UserServicer(User.Servicer):
         }
 
         return MessagesReactionsResponse(reactions=reactions)
-
-    async def AddChatbot(
-        self,
-        context: TransactionContext,
-        request: AddChatbotRequest,
-    ) -> AddChatbotResponse:
-
-        chatbot, _ = await Chatbot.Create(
-            context,
-            name=request.name,
-            channel_id=request.channel_id,
-            prompt=request.prompt,
-            human_in_the_loop=request.human_in_the_loop,
-        )
-
-        self.state.chatbot_ids.append(chatbot.state_id)
-
-        return AddChatbotResponse()
-
-    async def ListChatbots(
-        self,
-        context: ReaderContext,
-        request: ListChatbotsRequest,
-    ) -> ListChatbotsResponse:
-        return ListChatbotsResponse(chatbot_ids=self.state.chatbot_ids)
 
     @property
     def _messages_reactions(self):
