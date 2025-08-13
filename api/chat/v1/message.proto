@@ -18,18 +18,6 @@ service MessageMethods {
       reader: {},
     };
   }
-
-  rpc AddReaction(AddReactionRequest) returns (AddReactionResponse) {
-    option (rbt.v1alpha1.method) = {
-      transaction: {},
-    };
-  }
-
-  rpc RemoveReaction(RemoveReactionRequest) returns (RemoveReactionResponse) {
-    option (rbt.v1alpha1.method) = {
-      transaction: {},
-    };
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -43,19 +31,6 @@ message Message {
 
   // Text of the message.
   string text = 2;
-
-  // Map from unicode "reaction" to a map from user to reaction ID
-  // (see `Reactions` for more details).
-  map<string, Reactions> reactions = 3;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-message Reactions {
-  // Map from user that made this reaction to a UUIDv7 which (a)
-  // uniquely identifies this reaction so we can easily remove it and
-  // (b) can also be used to display when the reaction occurred.
-  map<string, string> users = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -65,7 +40,6 @@ message Details {
   string id = 4;
   string author = 1;
   string text = 2;
-  map<string, Reactions> reactions = 3;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -84,23 +58,5 @@ message GetRequest {}
 message GetResponse {
   Details details = 1;
 }
-
-////////////////////////////////////////////////////////////////////////
-
-message AddReactionRequest {
-  string unicode = 1;
-  string user = 2;  // User making reaction.
-}
-
-message AddReactionResponse {}
-
-////////////////////////////////////////////////////////////////////////
-
-message RemoveReactionRequest {
-  string unicode = 1;
-  string user = 2;  // User removing its already existing reaction.
-}
-
-message RemoveReactionResponse {}
 
 ////////////////////////////////////////////////////////////////////////

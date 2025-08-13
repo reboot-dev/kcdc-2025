@@ -13,7 +13,6 @@ from reboot.aio.auth.authorizers import allow
 from reboot.aio.contexts import ReaderContext, TransactionContext
 from reboot.protobuf import as_str, from_str
 from reboot.std.index.v1.index import Index
-from reboot.std.pubsub.v1.pubsub import PubSub
 from uuid import uuid4
 
 
@@ -58,12 +57,6 @@ class ChannelServicer(Channel.Servicer):
             value=from_str(message_id),
         )
 
-        await self._pub_sub.Publish(
-            context,
-            topic="messages",
-            value=from_str(message_id),
-        )
-
         return PostResponse(message_id=message_id)
 
     async def Messages(
@@ -91,7 +84,3 @@ class ChannelServicer(Channel.Servicer):
     @property
     def _messages(self):
         return Index.ref(messages_id(self.ref().state_id))
-
-    @property
-    def _pub_sub(self):
-        return PubSub.ref(f"{self.ref().state_id}-pub-sub")
