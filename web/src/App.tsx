@@ -98,6 +98,17 @@ const LoggedInChatApp: FC<{ username: string; handleLogout: () => void }> = ({
               <MessagesWindow
                 onReachTop={() => setLimit((limit) => limit + PAGE_SIZE)}
               >
+                {post.pending.map((message) => (
+                  <ChatMessage
+                    id={message.idempotencyKey}
+                    username={username}
+                    message={message.request.text}
+                    name={message.request.author}
+                    reactions={{}}
+                    pending={true}
+                    key={message.idempotencyKey}
+                  />
+                ))}
                 {Object.keys(messages)
                   .sort()
                   .reverse()
