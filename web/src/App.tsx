@@ -1,3 +1,7 @@
+import {
+  Presence,
+  usePresenceContext,
+} from "@reboot-dev/reboot-std-react/presence";
 import { FC, useEffect, useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatWindow from "./ChatWindow";
@@ -6,6 +10,8 @@ import { useUser, useUsers } from "./api/chat/v1/user_rbt_react";
 import { Button } from "./components/ui/button";
 
 const UsersPane: FC = () => {
+  const { subscriberIds } = usePresenceContext();
+
   const { useList } = useUsers({ id: "(singleton)" });
 
   const { response } = useList();
@@ -23,6 +29,11 @@ const UsersPane: FC = () => {
           <div key={user} className="p-2">
             {decodeURIComponent(user)}
           </div>
+          <span
+            className={`flex w-3 h-3 me-3 ${
+              subscriberIds.includes(user) ? "bg-green-500" : "bg-gray-500"
+            } rounded-full`}
+          ></span>
         </div>
       ))}
     </>
@@ -100,7 +111,9 @@ function App() {
   if (username === undefined) return <Login onSubmit={handleLogin} />;
 
   return (
-    <LoggedInChatApp username={username} handleLogout={handleLogout} />
+    <Presence id={"presence"} subscriberId={username}>
+      <LoggedInChatApp username={username} handleLogout={handleLogout} />
+    </Presence>
   );
 }
 

@@ -1,5 +1,6 @@
 import asyncio
 from reboot.aio.applications import Application
+from reboot.std.presence.v1 import presence
 from servicers.user import UserServicer, UsersServicer
 
 
@@ -9,7 +10,7 @@ async def main():
         servicers=[
             UserServicer,
             UsersServicer,
-        ],
+        ] + presence.servicers(),
     ).run()
 
 
